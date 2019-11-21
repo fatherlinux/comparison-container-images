@@ -15,6 +15,8 @@ get_package_manager() {
 	}
 
 get_size() {
+	mkdir -p cache
+	cd cache
 	name=`echo $1 | md5sum | cut -f1 -d" "`
 	if [ ! -f $name ]
 	then
@@ -28,6 +30,10 @@ get_size() {
 	echo Compressed Size: $1: $compressed_size
 	size=`du -sh $name | cut -f1`
 	echo Size: $1: $size
+
+	# Clean up
+	# rm $name
+	# rm $name.gz
 }
 
 cache_images() {
