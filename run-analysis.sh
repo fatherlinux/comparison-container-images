@@ -36,6 +36,19 @@ get_size() {
 	# rm $name.gz
 }
 
+get_core_utils() {
+	if j=`podman run -it -rm $1 rpm -qa 2>&1 | egrep '^coreutils-single.*$|^coreutils-[0-9].*$'`
+	then
+		echo "Core Utils: $j"
+	elif j=`podman run -it -rm $1 apt list 2>&1 | grep coreutils`
+	then
+		echo "Core Utils: $j"
+	elif j=`podman run -it --rm $1 apk list 2>&1 | grep ^busybox.*$`
+	then
+		echo "Core Utils: $j"
+	fi
+}
+
 cache_images() {
 	for i in $images
 	do
@@ -51,6 +64,7 @@ do
 	get_c_library $i
 	get_package_manager $i
 	get_size $i
+	get_core_utils $i
 	echo ""
 done
 
