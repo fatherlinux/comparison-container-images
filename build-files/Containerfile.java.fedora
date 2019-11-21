@@ -1,0 +1,3 @@
+FROM docker.io/fedora
+RUN yum install tomcat wget
+RUN cd /usr/share/tomcat/webapps; wget https://www.apache.org/dist/jspwiki/2.11.0.M5/binaries/webapp/JSPWiki.war

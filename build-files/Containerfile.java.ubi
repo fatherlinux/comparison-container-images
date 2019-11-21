@@ -1,0 +1,2 @@
+FROM regsitry.access.redhat.com
+RUN yum install -y java-11-openjdk-headless.x86_64 httpd
