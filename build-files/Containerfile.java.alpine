@@ -1,6 +1,6 @@
 # Following these instructions: https://wiki.alpinelinux.org/wiki/Tomcat
 FROM docker.io/alpine
-RUN apk add openjdk8
+RUN apk add openjdk11
 RUN mkdir /usr/share/tomcat;wget -qO- http://mirrors.ocf.berkeley.edu/apache/tomcat/tomcat-9/v9.0.30/bin/apache-tomcat-9.0.30.tar.gz | tar xvfz - --strip-components=1 -C /usr/share/tomcat
 RUN cd /usr/share/tomcat/webapps; wget https://www.apache.org/dist/jspwiki/2.11.0.M5/binaries/webapp/JSPWiki.war
 EXPOSE 8080
