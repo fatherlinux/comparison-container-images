@@ -1,0 +1,6 @@
+FROM registry.access.redhat.com/ubi8/ubi-minimal
+RUN microdnf install -y wget java-11-openjdk-headless.x86_64 tar gzip;microdnf clean all
+RUN mkdir /usr/share/tomcat;wget -qO- http://mirrors.ocf.berkeley.edu/apache/tomcat/tomcat-9/v9.0.30/bin/apache-tomcat-9.0.30.tar.gz | tar xvfz - --strip-components=1 -C /usr/share/tomcat
+RUN cd /usr/share/tomcat/webapps; wget https://www.apache.org/dist/jspwiki/2.11.0.M5/binaries/webapp/JSPWiki.war
+EXPOSE 8080
+ENTRYPOINT /usr/bin/java -Djava.util.logging.config.file=/usr/share/tomcat/conf/logging.properties -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -Djdk.tls.ephemeralDHKeySize=2048 -Djava.protocol.handler.pkgs=org.apache.catalina.webresources -Dorg.apache.catalina.security.SecurityListener.UMASK=0027 -Dignore.endorsed.dirs= -classpath /usr/share/tomcat/bin/bootstrap.jar:/usr/share/tomcat/bin/tomcat-juli.jar -Dcatalina.base=/usr/share/tomcat -Dcatalina.home=/usr/share/tomcat -Djava.io.tmpdir=/usr/share/tomcat/temp org.apache.catalina.startup.Bootstrap start

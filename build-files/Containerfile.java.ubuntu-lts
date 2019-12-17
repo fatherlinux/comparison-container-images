@@ -1,4 +1,4 @@
-FROM docker.io/debian:bullseye
+FROM docker.io/ubuntu:latest
 RUN apt-get update;apt-get install -y tomcat9 wget;apt-get autoclean
 RUN mkdir /usr/share/tomcat9/webapps;ln -s /usr/share/tomcat9/etc /usr/share/tomcat9/conf
 RUN cd /usr/share/tomcat9/webapps; wget https://www.apache.org/dist/jspwiki/2.11.0.M5/binaries/webapp/JSPWiki.war
