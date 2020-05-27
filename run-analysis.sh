@@ -1,26 +1,41 @@
 #!/bin/bash
 
-images="ubi8/ubi ubi8/ubi-minimal fedora centos:7 debian:bullseye-slim debian:bullseye ubuntu:latest alpine:latest"
+declare -A images
+images+=( \
+	["ubi8"]=ubi8/ubi \
+	["ubi8-minimal"]=ubi8/ubi-minimal \
+	["ubi8-micro"]=ubi8-micro \
+	["fedora"]=fedora \
+	["centos"]=centos:7 \
+	["debian-bullseye-slim"]=debian:bullseye-slim \
+	["debian-bullseye"]=debian:bullseye \
+	["ubuntu"]=ubuntu:latest \
+	["alpine"]=alpine:latest \
+	)
+#for key in ${!arr[@]}; do
+#    echo $key ${arr[${key}]}
+#done
+#exit
 
 get_version() {
-	echo Version: `podman run -it $1 cat /etc/os-release | grep PRETTY`
+	echo Version: `podman run -it ${images[${1}]} cat /etc/os-release | grep PRETTY`
 }
 
 get_c_library() {
-	echo C Library: `podman run -it $1 ldd /bin/sh | grep libc`
+	echo C Library: `podman run -it ${images[${1}]} ldd /bin/sh | grep libc`
 	}
 
 get_package_manager() {
-	echo Packager: `podman run -it $1 sh -c "ls /usr/bin /sbin | egrep '^rpm$|^apk$|^apt$'"`
+	echo Packager: `podman run -it ${images[${1}]} sh -c "ls /usr/bin /sbin | egrep '^rpm$|^apk$|^apt$'"`
 	}
 
 get_size() {
 	mkdir -p cache
 	cd cache
-	name=`echo $1 | md5sum | cut -f1 -d" "`
+	name=`echo ${images[${1}]} | md5sum | cut -f1 -d" "`
 	if [ ! -f $name ]
 	then
-		podman save -o $name $1 2>/dev/null
+		podman save -o $name ${images[${1}]} 2>/dev/null
 	fi
 	if [ ! -f "$name.gz" ]
 	then
@@ -37,16 +52,21 @@ get_size() {
 }
 
 get_core_utils() {
-	if j=`podman run -it -rm $1 rpm -qa 2>&1 | egrep '^coreutils-single.*$|^coreutils-[0-9].*$'`
+	if j=`podman run -it --rm ${images[${1}]} rpm -qa 2>&1 | egrep '^coreutils-single.*$|^coreutils-[0-9].*$'`
 	then
 		echo "Core Utils: $j"
-	elif j=`podman run -it -rm $1 apt list 2>&1 | grep coreutils`
+	elif j=`podman run -it --rm ${images[${1}]} apt list 2>&1 | grep coreutils`
 	then
 		echo "Core Utils: $j"
-	elif j=`podman run -it --rm $1 apk list 2>&1 | grep ^busybox.*$`
+	elif j=`podman run -it --rm ${images[${1}]} apk list 2>&1 | grep ^busybox.*$`
 	then
 		echo "Core Utils: $j"
 	fi
+}
+
+get_java_size() {
+	podman build -t java-$1 -f build-files/Containerfile.java.$1
+	#get_size "java.$1"
 }
 
 cache_images() {
@@ -58,13 +78,14 @@ cache_images() {
 
 #cache_images
 
-for i in $images
+for i in ${!images[@]}
 do 
-	get_version $i
-	get_c_library $i
-	get_package_manager $i
-	get_size $i
-	get_core_utils $i
+	#get_version $i
+	#get_c_library $i
+	#get_package_manager $i
+	#get_size $i
+	#get_core_utils $i
+	get_java_size $i
 	echo ""
 done
 
