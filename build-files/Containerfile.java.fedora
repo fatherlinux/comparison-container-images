@@ -1,6 +1,6 @@
 FROM docker.io/fedora
 RUN yum install -y tomcat wget;yum clean all
-RUN cd /usr/share/tomcat/webapps; wget https://www.apache.org/dist/jspwiki/2.11.0.M5/binaries/webapp/JSPWiki.war
+RUN cd /usr/share/tomcat/webapps; wget https://rebrand.ly/comparison-jsp-wiki
 EXPOSE 8080:8080
 ENTRYPOINT [ "/usr/libexec/tomcat/server", "start" ]
 
