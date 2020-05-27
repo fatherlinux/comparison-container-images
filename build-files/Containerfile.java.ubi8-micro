@@ -1,0 +1,14 @@
+FROM registry.access.redhat.com/ubi8/ubi AS ubi-micro-build
+MAINTAINER Scott McCarty smccarty@redhat.com
+RUN yum install -y wget gzip
+RUN mkdir -p /mnt/rootfs
+RUN yum install --installroot /mnt/rootfs coreutils-single glibc-minimal-langpack java-11-openjdk-headless.x86_64 --releasever 8 --setopt install_weak_deps=false --setopt module_platform_id=platform:el8  -y
+RUN rm -rf /mnt/rootfs/var/cache/*
+RUN mkdir /mnt/rootfs/usr/share/tomcat;wget -qO- https://rebrand.ly/comparison-apache-tomcat | tar xvfz - --strip-components=1 -C /mnt/rootfs/usr/share/tomcat
+RUN cd /mnt/rootfs/usr/share/tomcat/webapps; wget https://rebrand.ly/comparison-jsp-wiki
+
+
+FROM scratch AS ubi-micro
+COPY --from=ubi-micro-build /mnt/rootfs/ /
+EXPOSE 8080
+ENTRYPOINT /usr/bin/java -Djava.util.logging.config.file=/usr/share/tomcat/conf/logging.properties -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -Djdk.tls.ephemeralDHKeySize=2048 -Djava.protocol.handler.pkgs=org.apache.catalina.webresources -Dorg.apache.catalina.security.SecurityListener.UMASK=0027 -Dignore.endorsed.dirs= -classpath /usr/share/tomcat/bin/bootstrap.jar:/usr/share/tomcat/bin/tomcat-juli.jar -Dcatalina.base=/usr/share/tomcat -Dcatalina.home=/usr/share/tomcat -Djava.io.tmpdir=/usr/share/tomcat/temp org.apache.catalina.startup.Bootstrap start
