@@ -1,6 +1,0 @@
-FROM docker.io/fedora
-RUN yum install -y tomcat wget;yum clean all
-RUN cd /usr/share/tomcat/webapps; wget https://rebrand.ly/comparison-jsp-wiki
-EXPOSE 8080:8080
-ENTRYPOINT [ "/usr/libexec/tomcat/server", "start" ]
-

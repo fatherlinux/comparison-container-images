@@ -65,7 +65,7 @@ get_core_utils() {
 }
 
 get_java_size() {
-	podman build -t java-$1 -f build-files/Containerfile.java.$1
+	podman build -t java-$1 -f build/Containerfile.java.$1
 	#get_size "java.$1"
 }
 
@@ -76,7 +76,17 @@ cache_images() {
 	done
 }
 
+cache_software() {
+	TOMCAT_DOWNLOAD_URL="http://mirrors.ocf.berkeley.edu/apache/tomcat/tomcat-9/v9.0.35/bin/apache-tomcat-9.0.35.tar.gz"
+	JSPWIKI_DOWNLOAD_URL="http://mirrors.ocf.berkeley.edu/apache/jspwiki/2.11.0.M6/binaries/webapp/JSPWiki.war"
+	mkdir -p ./build/tomcat
+	wget -qO- $TOMCAT_DOWNLOAD_URL | tar xvfz - --strip-components=1 -C ./build/tomcat
+	mkdir -p ./build/jsp-wiki
+	cd ./build/jsp-wiki; wget $JSPWIKI_DOWNLOAD_URL
+}
+
 #cache_images
+#cache_software
 
 for i in ${!images[@]}
 do 

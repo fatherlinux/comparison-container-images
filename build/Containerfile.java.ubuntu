@@ -1,6 +1,6 @@
 FROM docker.io/ubuntu:latest
-RUN export DEBIAN_FRONTEND=noninteractive;apt-get update;apt-get install -yq tomcat9 wget;apt-get autoclean
+RUN export DEBIAN_FRONTEND=noninteractive;apt-get update;apt-get install -yq openjdk-11-jre-headless tomcat9;apt-get autoclean
 RUN mkdir /usr/share/tomcat9/webapps;ln -s /usr/share/tomcat9/etc /usr/share/tomcat9/conf
-RUN cd /usr/share/tomcat9/webapps; wget https://rebrand.ly/comparison-jsp-wiki
+COPY jsp-wiki/* /usr/share/tomcat9/webapps/
 EXPOSE 8080
 ENTRYPOINT /usr/bin/java -Dnop -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -Djdk.tls.ephemeralDHKeySize=2048 -Djava.protocol.handler.pkgs=org.apache.catalina.webresources -Dorg.apache.catalina.security.SecurityListener.UMASK=0027 -Dignore.endorsed.dirs= -classpath /usr/share/tomcat9/bin/bootstrap.jar:/usr/share/tomcat9/bin/tomcat-juli.jar -Dcatalina.base=/usr/share/tomcat9 -Dcatalina.home=/usr/share/tomcat9 -Djava.io.tmpdir=/usr/share/tomcat9/temp org.apache.catalina.startup.Bootstrap start

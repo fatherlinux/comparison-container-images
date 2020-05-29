@@ -1,0 +1,6 @@
+FROM docker.io/fedora
+RUN yum install -y java-11-openjdk-headless tomcat;yum clean all
+COPY jsp-wiki/* /usr/share/tomcat/webapps/
+EXPOSE 8080:8080
+ENTRYPOINT [ "/usr/libexec/tomcat/server", "start" ]
+
