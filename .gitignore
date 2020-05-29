@@ -1,3 +1,4 @@
 build/tomcat/*
 build/jsp-wiki
 cache/*
+.run-analysis.log

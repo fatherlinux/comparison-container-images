@@ -12,10 +12,7 @@ images+=( \
 	["ubuntu"]=ubuntu:latest \
 	["alpine"]=alpine:latest \
 	)
-#for key in ${!arr[@]}; do
-#    echo $key ${arr[${key}]}
-#done
-#exit
+LOGFILE=".run-analysis.log"
 
 get_version() {
 	echo Version: `podman run -it ${images[${1}]} cat /etc/os-release | grep PRETTY`
@@ -31,24 +28,23 @@ get_package_manager() {
 
 get_size() {
 	mkdir -p cache
-	cd cache
-	name=`echo ${images[${1}]} | md5sum | cut -f1 -d" "`
+	name=`echo $1 | md5sum | cut -f1 -d" "`
 	if [ ! -f $name ]
 	then
-		podman save -o $name ${images[${1}]} 2>/dev/null
+		podman save -o ./cache/$name $1 2>/dev/null
 	fi
-	if [ ! -f "$name.gz" ]
+	if [ ! -f "./cache/$name.gz" ]
 	then
-		gzip --keep $name
+		gzip --keep ./cache/$name
 	fi
-	compressed_size=`du -sh $name.gz | cut -f1`
+	compressed_size=`du -sh ./cache/$name.gz | cut -f1`
 	echo Compressed Size: $1: $compressed_size
-	size=`du -sh $name | cut -f1`
+	size=`du -sh ./cache/$name | cut -f1`
 	echo Size: $1: $size
 
 	# Clean up
-	# rm $name
-	# rm $name.gz
+	# rm ./cache/$name
+	# rm ./cache/$name.gz
 }
 
 get_core_utils() {
@@ -65,8 +61,8 @@ get_core_utils() {
 }
 
 get_java_size() {
-	podman build -t java-$1 -f build/Containerfile.java.$1
-	#get_size "java.$1"
+	podman build -t java-$1 -f build/Containerfile.java.$1 >> $LOGFILE
+	get_size java-$1
 }
 
 cache_images() {
@@ -90,11 +86,11 @@ cache_software() {
 
 for i in ${!images[@]}
 do 
-	#get_version $i
-	#get_c_library $i
-	#get_package_manager $i
-	#get_size $i
-	#get_core_utils $i
+	get_version $i
+	get_c_library $i
+	get_package_manager $i
+	get_size ${images[${i}]}
+	get_core_utils $i
 	get_java_size $i
 	echo ""
 done
